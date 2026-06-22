@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BigBro Building Solutions — Paint Consultation</title>
+<style>
+  :root{
+    --ink:#1a1410;
+    --paper:#f3ede1;
+    --paper-2:#e9e0cf;
+    --line:#c9bca3;
+    --clay:#b8492f;
+    --clay-dk:#8f3722;
+    --sage:#5b6b4f;
+    --gold:#c08a2d;
+    --teal:#2f6b6b;
+    --shadow:rgba(26,20,16,.12);
+    --ok:#3c7a4b;
+    --warn:#b8492f;
+    --r:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--paper);color:var(--ink);line-height:1.55;overflow-x:hidden}
+  h1,h2,h3{font-family:Georgia,'Times New Roman',serif;font-weight:700;letter-spacing:-.01em}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+
+  header{background:linear-gradient(135deg,#1a1410,#2c211a);color:var(--paper);padding:54px 0 46px;position:relative;overflow:hidden}
+  header::after{content:"";position:absolute;right:-60px;top:-40px;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(184,73,47,.55),transparent 62%)}
+  .brand{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+  .blob{width:42px;height:42px;border-radius:50% 50% 50% 14px;background:linear-gradient(135deg,var(--clay),var(--gold));box-shadow:0 4px 14px rgba(0,0,0,.4)}
+  .brand b{font-family:Georgia,serif;font-size:1.35rem;letter-spacing:.5px}
+  header h1{font-size:clamp(2.1rem,5vw,3.4rem);line-height:1.05;max-width:16ch}
+  header p{margin-top:14px;max-width:54ch;color:#e7dcc9;opacity:.9}
+
+  nav.tabs{position:sticky;top:0;z-index:40;background:var(--paper-2);border-bottom:1px solid var(--line);box-shadow:0 2px 8px var(--shadow)}
+  .tabs .wrap{display:flex;gap:4px;overflow-x:auto}
+  .tab{appearance:none;border:none;background:none;cursor:pointer;font:inherit;font-weight:600;color:#6b5d49;padding:16px 18px;white-space:nowrap;border-bottom:3px solid transparent;transition:.15s}
+  .tab:hover{color:var(--ink)}
+  .tab.active{color:var(--clay-dk);border-bottom-color:var(--clay)}
+
+  section.panel{display:none;padding:38px 0 70px}
+  section.panel.active{display:block;animation:fade .3s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .lead{max-width:64ch;color:#5c5040;margin-bottom:26px}
+
+  .card{background:#fbf7ee;border:1px solid var(--line);border-radius:var(--r);padding:22px;margin-bottom:20px;box-shadow:0 1px 0 #fff inset,0 6px 18px -12px var(--shadow)}
+  .card h3{font-size:1.18rem;margin-bottom:4px;display:flex;align-items:center;gap:9px}
+  .card .hint{color:#7a6c57;font-size:.86rem;margin-bottom:16px}
+  .tag{font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:var(--clay);color:#fff;padding:3px 8px;border-radius:20px}
+
+  .grid{display:grid;gap:16px}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  @media(max-width:640px){.g2,.g3{grid-template-columns:1fr}}
+  label{display:block;font-weight:600;font-size:.84rem;margin-bottom:6px;color:#43392c}
+  input[type=number],input[type=text],select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;font:inherit;color:var(--ink)}
+  input:focus,select:focus{outline:2px solid var(--clay);outline-offset:1px;border-color:var(--clay)}
+  .inline{display:flex;gap:8px}
+  .inline input{flex:1}
+
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+  .seg button{appearance:none;border:none;background:none;cursor:pointer;font:inherit;font-weight:600;padding:9px 15px;color:#6b5d49}
+  .seg button.on{background:var(--clay);color:#fff}
+
+  .btn{appearance:none;border:none;cursor:pointer;font:inherit;font-weight:700;background:var(--clay);color:#fff;padding:13px 22px;border-radius:11px;box-shadow:0 4px 14px -4px var(--clay);transition:.15s}
+  .btn:hover{background:var(--clay-dk);transform:translateY(-1px)}
+  .btn.ghost{background:transparent;color:var(--clay-dk);border:1px solid var(--clay);box-shadow:none}
+  .btn.sm{padding:8px 14px;font-size:.85rem}
+  .btn.sage{background:var(--sage);box-shadow:none}
+  .btn.sage:hover{background:#4a5740}
+  .btn.tiny{padding:6px 11px;font-size:.78rem}
+  .btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+
+  /* ----- Room cards ----- */
+  .room{background:#fbf7ee;border:1px solid var(--line);border-radius:var(--r);padding:20px;margin-bottom:22px;box-shadow:0 6px 18px -12px var(--shadow)}
+  .room-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+  .room-toggle{appearance:none;border:none;background:var(--paper-2);color:var(--clay-dk);width:34px;height:34px;min-width:34px;border-radius:9px;cursor:pointer;font-size:1rem;font-weight:700;display:flex;align-items:center;justify-content:center;transition:transform .2s;border:1px solid var(--line)}
+  .room.collapsed .room-toggle{transform:rotate(-90deg)}
+  .room-head .roomname{flex:1;min-width:140px;font-family:Georgia,serif;font-size:1.15rem;font-weight:700;padding:8px 10px;border:1px solid transparent;border-radius:9px;background:#fff}
+  .room-head .roomname:focus{outline:2px solid var(--clay);border-color:var(--clay)}
+  .room-total{font-family:'Segoe UI',sans-serif;font-size:.78rem;font-weight:700;background:#1a1410;color:var(--paper);border-radius:20px;padding:6px 13px;white-space:nowrap}
+  .room-total b{color:var(--gold)}
+  .room-del{background:#fbeae6;color:var(--clay-dk);border:1px solid #e7c3b9;border-radius:9px;cursor:pointer;font-weight:700;padding:8px 12px}
+  .room-body{overflow:hidden;transition:max-height .25s ease,opacity .2s ease;max-height:6000px;opacity:1}
+  .room.collapsed .room-body{max-height:0;opacity:0;margin:0;pointer-events:none}
+  .room-sub{color:#7a6c57;font-size:.82rem;margin-bottom:14px;margin-top:10px}
+
+  .wall-add{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;padding:12px;border:1px dashed var(--line);border-radius:11px;background:#fffdf8}
+
+  .wall{border:1px solid var(--line);border-left:4px solid var(--clay);border-radius:11px;padding:15px;margin-bottom:12px;background:#fff;position:relative}
+  .wall.ceiling{border-left-color:var(--teal)}
+  .wall.custom{border-left-color:var(--gold)}
+  .wall h4{font-family:Georgia,serif;font-size:1rem;margin-bottom:11px;display:flex;align-items:center;gap:8px}
+  .wall h4 .area-badge{margin-left:auto;font-family:'Segoe UI',sans-serif;font-size:.72rem;font-weight:700;background:var(--paper-2);border:1px solid var(--line);border-radius:20px;padding:3px 10px;color:#5c5040}
+  .wall-del{width:30px;height:30px;min-width:30px;border-radius:8px;border:1px solid #e7c3b9;background:#fbeae6;color:var(--clay-dk);font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.85rem;line-height:1;padding:0;transition:.15s}
+  .wall-del:hover{background:var(--clay);color:#fff;border-color:var(--clay)}
+
+  .openings{margin-top:6px;padding-top:11px;border-top:1px dotted var(--line)}
+  .opening-row{display:grid;grid-template-columns:1.4fr 1fr 1fr .7fr 40px;gap:8px;align-items:end;margin-bottom:8px}
+  @media(max-width:680px){.opening-row{grid-template-columns:1fr 1fr 40px}}
+  .mini{font-size:.74rem;color:#7a6c57;margin-bottom:4px;font-weight:600}
+  .opening-row .x{width:38px;height:38px;border-radius:9px;border:1px solid #e7c3b9;background:#fbeae6;color:var(--clay-dk);font-size:1rem;cursor:pointer;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1;padding:0;transition:.15s}
+  .opening-row .x:hover{background:var(--clay);color:#fff;border-color:var(--clay)}
+
+  .result{background:#ffffff;color:var(--ink);border:1px solid var(--line);border-radius:var(--r);padding:26px;margin-top:8px;box-shadow:0 10px 30px -18px var(--shadow)}
+  .result h3{color:var(--clay-dk);margin-bottom:18px}
+  .result-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+  .result-head h3{margin:0}
+  .btn-pdf{appearance:none;border:1px solid var(--clay);background:var(--clay);color:#fff;font:inherit;font-weight:700;cursor:pointer;padding:10px 16px;border-radius:10px;display:inline-flex;align-items:center;gap:7px;transition:.15s}
+  .btn-pdf:hover{background:var(--clay-dk);border-color:var(--clay-dk)}
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
+  .stat{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .stat .k{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:#8a7d68}
+  .stat .v{font-family:Georgia,serif;font-size:1.7rem;margin-top:4px;color:var(--ink)}
+  .stat .v small{font-size:.8rem;color:#8a7d68;font-weight:400}
+  .breakdown{margin-top:20px;border-top:1px solid var(--line);padding-top:16px}
+  .breakdown table{width:100%;border-collapse:collapse;font-size:.9rem;table-layout:fixed}
+  .breakdown th,.breakdown td{padding:9px 10px;border-bottom:1px solid #ece3d2;vertical-align:middle}
+  .breakdown th{color:#8a7d68;font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;text-align:right}
+  .breakdown th:first-child,.breakdown td:first-child{text-align:left}
+  .breakdown td{text-align:right;font-variant-numeric:tabular-nums;color:var(--ink)}
+  .breakdown td:first-child{white-space:normal}
+  .breakdown col.c-item{width:26%}
+  .breakdown col.c-coats{width:18%}
+  .breakdown .bd-title{font-family:Georgia,serif;font-size:.98rem;color:var(--clay-dk);margin-bottom:8px}
+  .breakdown td.coats{color:#9c8f78;font-size:.82rem;font-variant-numeric:normal}
+  .breakdown tr.room-row td.coats{color:#8f7a55}
+  .breakdown tr.room-row td{color:var(--clay-dk);font-weight:700;border-top:2px solid var(--gold);border-bottom:1px solid #e7d6b0;background:linear-gradient(90deg,rgba(192,138,45,.16),rgba(192,138,45,.06))}
+  .breakdown tr.room-row td:first-child{position:relative;padding-left:16px}
+  .breakdown tr.room-row td:first-child::before{content:"";position:absolute;left:0;top:6px;bottom:6px;width:4px;border-radius:3px;background:var(--gold)}
+  .breakdown td.wcell{padding-left:24px;color:#6b5d49;position:relative}
+  .breakdown td.wcell::before{content:"└";position:absolute;left:9px;color:#b3a489}
+  .total-row td{font-weight:700;font-size:1.05rem;border-bottom:none;padding-top:12px;color:var(--ink)}
+  .total-row td:last-child{color:var(--clay-dk)}
+  .result .note{color:#8a7d68 !important}
+
+  .pill{display:inline-block;background:var(--paper-2);border:1px solid var(--line);border-radius:20px;padding:5px 12px;font-size:.8rem;font-weight:600;margin:3px 4px 3px 0;color:#5c5040}
+
+  .studio-grid{display:grid;grid-template-columns:1.3fr .9fr;gap:22px}
+  @media(max-width:860px){.studio-grid{grid-template-columns:1fr}}
+  .canvas-wrap{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#222;min-height:300px;display:flex;align-items:center;justify-content:center}
+  #photoCanvas{max-width:100%;display:block;cursor:crosshair}
+  .canvas-empty{color:#bbae98;text-align:center;padding:50px 20px;font-size:.9rem}
+  .swatches{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 26px}
+  .swatch{width:46px;height:46px;border-radius:10px;cursor:pointer;border:2px solid transparent;position:relative;box-shadow:0 2px 6px var(--shadow)}
+  .swatch.on{border-color:var(--ink);transform:scale(1.06)}
+  .swatch span{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-size:.6rem;color:#5c5040;white-space:nowrap}
+  .ai-box{background:#fffdf8;border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:8px}
+  .ai-box h4{font-family:Georgia,serif;margin-bottom:8px}
+  .ai-pal{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .ai-pal .chip{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:.66rem;cursor:pointer;text-align:center}
+  .ai-pal .chip i{width:40px;height:40px;border-radius:8px;border:1px solid rgba(0,0,0,.15)}
+  .range-row{display:flex;align-items:center;gap:12px;margin-top:10px}
+  .range-row input[type=range]{flex:1;accent-color:var(--clay)}
+  .loader{display:none;align-items:center;gap:10px;color:#7a6c57;font-weight:600;margin-top:10px}
+  .loader.show{display:flex}
+  .spin{width:18px;height:18px;border:3px solid var(--line);border-top-color:var(--clay);border-radius:50%;animation:sp .8s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .note{font-size:.78rem;color:#7a6c57;margin-top:8px}
+  footer{background:#1a1410;color:#bbae98;text-align:center;padding:26px;font-size:.82rem}
+  .empty-hint{color:#7a6c57;font-size:.88rem;font-style:italic}
+
+  /* ============ MOBILE RESPONSIVE ============ */
+  @media(max-width:680px){
+    .wrap{padding:0 12px}
+    header{padding:30px 0 26px}
+    header h1{font-size:1.55rem;max-width:none;line-height:1.12}
+    header p{font-size:.88rem;margin-top:10px}
+    .brand{margin-bottom:14px}
+    .brand b{font-size:1.1rem}
+    .blob{width:34px;height:34px}
+
+    /* tabs: compact, horizontal scroll, hide scrollbar */
+    .tabs .wrap{gap:0;scrollbar-width:none}
+    .tabs .wrap::-webkit-scrollbar{display:none}
+    .tab{padding:12px 12px;font-size:.86rem}
+
+    section.panel{padding:20px 0 48px}
+    h2{font-size:1.35rem}
+    .lead{font-size:.86rem;margin-bottom:16px;line-height:1.45}
+    .card{padding:14px;border-radius:12px;margin-bottom:16px}
+    .card h3{font-size:1rem}
+    .card .hint{font-size:.8rem;margin-bottom:12px}
+    .grid{gap:11px}
+
+    /* wall card: keep width/height in 2 cols and putty/primer/paint in 3 cols */
+    .wall .grid.g2{grid-template-columns:1fr 1fr;gap:9px}
+    .wall .grid.g3{grid-template-columns:1fr 1fr 1fr;gap:7px}
+    .wall .grid.g3 label{font-size:.72rem;margin-bottom:3px;line-height:1.2}
+    .wall .grid.g3 select{padding:8px 6px;font-size:.82rem;background-position:right 6px center}
+
+    /* compact inputs everywhere */
+    label{font-size:.8rem;margin-bottom:4px}
+    input[type=number],input[type=text],select{padding:9px 10px;border-radius:9px;font-size:.95rem}
+    .mini{font-size:.7rem}
+
+    /* segmented unit toggle full width */
+    .seg{display:flex;width:100%}
+    .seg button{flex:1;padding:9px 8px;font-size:.85rem}
+
+    /* buttons */
+    .btn{padding:11px 16px;font-size:.92rem}
+    .btn.sm{padding:8px 12px;font-size:.82rem}
+    .btnrow{gap:8px}
+    .btnrow .btn{flex:1 1 auto}
+
+    /* room header: toggle + name on row 1, total + remove on row 2 */
+    .room{padding:12px;margin-bottom:16px}
+    .room-head{gap:8px}
+    .room-toggle{order:0;width:30px;height:30px;min-width:30px}
+    .room-head .roomname{min-width:0;font-size:1rem;order:1;flex:1 1 auto;padding:7px 9px}
+    .room-del{order:2;padding:7px 9px;font-size:.76rem}
+    .room-total{order:3;flex:1 1 100%;text-align:center;font-size:.74rem;padding:5px 11px}
+    .room-sub{font-size:.78rem;margin:8px 0 12px}
+
+    /* add-surface buttons: 2 per row, compact */
+    .wall-add{gap:6px;padding:9px;margin-bottom:12px}
+    .wall-add .btn.tiny{flex:1 1 calc(50% - 6px);text-align:center;padding:8px 6px;font-size:.8rem}
+
+    .wall{padding:12px;margin-bottom:11px}
+    .wall h4{flex-wrap:wrap;gap:6px;font-size:.95rem;margin-bottom:10px}
+    .wall h4 .area-badge{font-size:.66rem;padding:3px 8px}
+    .wall-del{width:28px;height:28px;min-width:28px}
+    .openings .mini{margin-top:2px}
+
+    /* opening rows: name full-width, w/h side by side, qty + remove side by side */
+    .opening-row{grid-template-columns:1fr 1fr;gap:8px}
+    .opening-row>div:first-child{grid-column:1 / -1}
+    .opening-row .x{width:100%;height:36px}
+
+    /* stat cards: 2 per row, tighter */
+    .stat-grid{grid-template-columns:1fr 1fr;gap:9px}
+    .stat{padding:11px}
+    .stat .k{font-size:.66rem}
+    .stat .v{font-size:1.3rem}
+    .result{padding:14px;border-radius:12px}
+    .result h3{font-size:1.15rem;margin-bottom:14px}
+    .result-head{flex-direction:column;align-items:stretch;gap:10px;margin-bottom:14px}
+    .result-head h3{margin-bottom:0}
+    .btn-pdf{justify-content:center;width:100%}
+    .breakdown .bd-title{font-size:.92rem}
+
+    /* ---- TABLES become stacked cards (light theme) ---- */
+    .breakdown table,.breakdown thead,.breakdown tbody,.breakdown tr,.breakdown td{display:block;width:100%}
+    .breakdown colgroup,.breakdown thead{display:none}
+    .breakdown table{table-layout:auto}
+    .breakdown tr{border:1px solid var(--line);border-radius:10px;margin-bottom:10px;padding:5px 11px;background:var(--paper)}
+    .breakdown td{border:none;border-bottom:1px solid #ece3d2;padding:7px 0;text-align:right;display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:.9rem}
+    .breakdown td:last-child{border-bottom:none}
+    .breakdown td:first-child{text-align:left;font-weight:700;font-size:.96rem;color:var(--ink);border-bottom:1px solid var(--line);padding-bottom:7px;margin-bottom:1px}
+    .breakdown td[data-label]::before{content:attr(data-label);color:#8a7d68;font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;font-weight:600;flex:0 0 auto}
+    .breakdown td.wcell{padding-left:0;color:#6b5d49}
+    .breakdown td.wcell::before{position:static;content:"↳ "}
+    .breakdown tr.room-row{background:linear-gradient(90deg,rgba(192,138,45,.16),rgba(192,138,45,.05));border-color:var(--gold);border-left:4px solid var(--gold)}
+    .breakdown tr.room-row td:first-child{color:var(--clay-dk)}
+    .breakdown tr.room-row td{color:var(--clay-dk)}
+    .breakdown td.coats[data-label]{font-size:.82rem;color:#9c8f78}
+    .breakdown .total-row{background:var(--clay);border-color:var(--clay-dk)}
+    .breakdown .total-row td{color:#fff}
+    .breakdown .total-row td:first-child{color:#fff;border-bottom-color:rgba(255,255,255,.3)}
+    .breakdown .total-row td[data-label]::before{color:rgba(255,255,255,.8)}
+    .total-row td{font-size:.96rem}
+    .note{font-size:.74rem}
+
+    /* ---- Consumption table: compact horizontal chips (light) ---- */
+    .breakdown.consumption tr{display:flex;flex-wrap:wrap;align-items:stretch;padding:9px 11px;gap:6px}
+    .breakdown.consumption td{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:1px;border:none;padding:0;font-size:.82rem;text-align:left;flex:1 1 0}
+    .breakdown.consumption td:first-child{flex:1 1 100%;flex-direction:row;align-items:center;font-size:.92rem;font-weight:700;color:var(--ink);border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:1px}
+    .breakdown.consumption td[data-label]::before{content:attr(data-label);font-size:.6rem;color:#8a7d68;text-transform:uppercase;letter-spacing:.03em;font-weight:600;line-height:1}
+    .breakdown.consumption td[data-label]{font-variant-numeric:tabular-nums;font-weight:600;color:var(--ink)}
+    .breakdown.consumption td.coats[data-label]{flex:1 1 100%;flex-direction:row;justify-content:space-between;align-items:center;gap:8px;border-top:1px solid #ece3d2;padding-top:6px;margin-top:2px;font-size:.76rem;color:#9c8f78}
+    .breakdown.consumption tr.room-row td:first-child{color:var(--clay-dk)}
+    .breakdown.consumption tr.room-row td[data-label]{color:var(--clay-dk);font-weight:700}
+
+    /* studio */
+    .studio-grid{gap:14px}
+    .swatch{width:40px;height:40px}
+    .canvas-wrap{min-height:190px}
+    .ai-pal .chip i{width:36px;height:36px}
+    footer{padding:18px 12px;font-size:.76rem}
+  }
+
+  @media(max-width:380px){
+    .stat-grid{grid-template-columns:1fr}
+    .wall-add .btn.tiny{flex:1 1 100%}
+    header h1{font-size:1.35rem}
+    .tab{padding:11px 10px;font-size:.82rem}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="brand"><div class="blob"></div><b>BigBro Building Solutions</b></div>
+    <h1>Plan your paint job room by room, wall by wall.</h1>
+    <p>Add a room, click once for each wall plus the ceiling, enter sizes and deduct doors and windows. Set putty, primer and paint per wall, and see litres and cost broken down — then preview new colours on a photo of your own building.</p>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="wrap">
+    <button class="tab active" data-tab="interior">Interior</button>
+    <button class="tab" data-tab="exterior">Exterior</button>
+    <button class="tab" data-tab="cost">Cost &amp; Rates</button>
+    <button class="tab" data-tab="studio">Colour Studio</button>
+  </div>
+</nav>
+
+<!-- ============ INTERIOR ============ -->
+<section class="panel active" id="interior">
+  <div class="wrap">
+    <h2>Interior estimate</h2>
+    <p class="lead">Each room is a section. Inside a room, click <b>+ Wall</b> for each of the four sides and <b>+ Ceiling</b> for the top — a hall gives you 4 walls plus 1 ceiling. Every wall has its own size, its own deductions, and its own putty / primer / paint settings, so one wall can be putty-only while another takes two coats.</p>
+
+    <div class="card client-card">
+      <h3>🧾 Prepared for <span class="tag">optional</span></h3>
+      <p class="hint">These details appear on the PDF estimate.</p>
+      <div class="grid g2">
+        <div><label>Client name</label><input type="text" id="cli_name_interior" placeholder="e.g. Mr. Ramesh Kumar"></div>
+        <div><label>Phone number</label><input type="text" id="cli_phone_interior" placeholder="e.g. +91 98765 43210"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>📐 Measurement units</h3>
+      <p class="hint">Feet by default. Switch any time — coverage rates adapt automatically.</p>
+      <div class="seg" id="unitSeg">
+        <button data-u="ft" class="on">Feet (ft²)</button>
+        <button data-u="m">Metres (m²)</button>
+      </div>
+    </div>
+
+    <div id="roomsInt"></div>
+    <div class="btnrow"><button class="btn sage" onclick="addRoom('interior')">+ Add room</button></div>
+
+    <div class="btnrow" style="margin-top:22px"><button class="btn" onclick="calc('interior')">Calculate interior →</button></div>
+    <div id="interiorResult" style="margin-top:22px"></div>
+  </div>
+</section>
+
+<!-- ============ EXTERIOR ============ -->
+<section class="panel" id="exterior">
+  <div class="wrap">
+    <h2>Exterior estimate</h2>
+    <p class="lead">Same room-and-wall layout for outside faces. Group walls by elevation (front, back, sides) into a "room", click a wall per face, deduct windows, grilles and garage doors. Exterior coverage runs lower by default since rough surfaces drink more paint.</p>
+
+    <div class="card client-card">
+      <h3>🧾 Prepared for <span class="tag">optional</span></h3>
+      <p class="hint">These details appear on the PDF estimate.</p>
+      <div class="grid g2">
+        <div><label>Client name</label><input type="text" id="cli_name_exterior" placeholder="e.g. Mr. Ramesh Kumar"></div>
+        <div><label>Phone number</label><input type="text" id="cli_phone_exterior" placeholder="e.g. +91 98765 43210"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>📐 Measurement units</h3>
+      <p class="hint">Shared with the interior tab.</p>
+      <div class="seg" id="unitSegMirror">
+        <button data-u="ft" class="on">Feet (ft²)</button>
+        <button data-u="m">Metres (m²)</button>
+      </div>
+      <p class="note">Exterior coverage is ~15% lower than interior by default. Adjust in the Cost &amp; Rates tab.</p>
+    </div>
+
+    <div id="roomsExt"></div>
+    <div class="btnrow"><button class="btn sage" onclick="addRoom('exterior')">+ Add elevation / block</button></div>
+
+    <div class="btnrow" style="margin-top:22px"><button class="btn" onclick="calc('exterior')">Calculate exterior →</button></div>
+    <div id="exteriorResult" style="margin-top:22px"></div>
+  </div>
+</section>
+
+<!-- ============ COST ============ -->
+<section class="panel" id="cost">
+  <div class="wrap">
+    <h2>Coverage &amp; cost rates</h2>
+    <p class="lead">These numbers drive every calculation. Defaults are typical industry figures — change them to match your local products and prices. Coverage is "area one litre/kg covers in a single coat".</p>
+
+    <div class="card">
+      <h3>🪣 Putty <span class="tag">per layer</span></h3>
+      <div class="grid g3">
+        <div><label>Coverage per kg (ft²)</label><input type="number" id="r_putty_cov_ft" value="13" step="1"></div>
+        <div><label>Coverage per kg (m²)</label><input type="number" id="r_putty_cov_m" value="1.2" step="0.1"></div>
+        <div><label>Price per kg</label><div class="inline"><span class="pill curPill">₹</span><input type="number" id="r_putty_price" value="45" step="1"></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>🩹 Primer <span class="tag">per coat</span></h3>
+      <div class="grid g3">
+        <div><label>Coverage per litre (ft²)</label><input type="number" id="r_primer_cov_ft" value="108" step="1"></div>
+        <div><label>Coverage per litre (m²)</label><input type="number" id="r_primer_cov_m" value="10" step="0.5"></div>
+        <div><label>Price per litre</label><div class="inline"><span class="pill curPill">₹</span><input type="number" id="r_primer_price" value="180" step="1"></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>🎨 Paint <span class="tag">per coat</span></h3>
+      <div class="grid g3">
+        <div><label>Coverage per litre (ft²)</label><input type="number" id="r_paint_cov_ft" value="120" step="1"></div>
+        <div><label>Coverage per litre (m²)</label><input type="number" id="r_paint_cov_m" value="11" step="0.5"></div>
+        <div><label>Price per litre</label><div class="inline"><span class="pill curPill">₹</span><input type="number" id="r_paint_price" value="320" step="1"></div></div>
+      </div>
+      <div class="grid g2" style="margin-top:14px">
+        <div><label>Exterior coverage factor</label><input type="number" id="r_ext_factor" value="0.85" step="0.05" min="0.4" max="1"></div>
+        <div><label>Currency symbol</label><input type="text" id="r_cur" value="₹" maxlength="3"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>⚙️ Practical allowances</h3>
+      <div class="grid g2">
+        <div><label>Wastage / spillage %</label><input type="number" id="r_waste" value="8" step="1"></div>
+        <div><label>Round litres up to nearest</label>
+          <select id="r_round"><option value="0">No rounding</option><option value="0.5" selected>0.5 L</option><option value="1">1 L</option><option value="4">4 L (gallon)</option></select>
+        </div>
+      </div>
+      <p class="note">Wastage is added on top of theoretical volume. Rounding reflects that paint comes in fixed tin sizes.</p>
+    </div>
+    <button class="btn" onclick="saveRates()">Save rates</button>
+    <span id="ratesSaved" class="pill" style="display:none;margin-left:10px">✓ Saved</span>
+  </div>
+</section>
+
+<!-- ============ STUDIO ============ -->
+<section class="panel" id="studio">
+  <div class="wrap">
+    <h2>Colour studio</h2>
+    <p class="lead">Upload a photo of the building. Tap a wall area to recolour it — the tool blends your colour with the wall's natural light and shadow so it looks real. Want ideas? Let the AI read the photo and suggest a palette that suits the architecture.</p>
+
+    <div class="studio-grid">
+      <div>
+        <div class="card" style="margin-bottom:14px">
+          <div class="btnrow">
+            <label class="btn sm" style="cursor:pointer">📷 Upload / take photo
+              <input type="file" id="photoInput" accept="image/*" capture="environment" style="display:none">
+            </label>
+            <button class="btn ghost sm" onclick="resetPhoto()">Reset photo</button>
+            <button class="btn ghost sm" onclick="undoPaint()">↶ Undo</button>
+            <button class="btn sage sm" onclick="downloadResult()">⬇ Save result</button>
+          </div>
+        </div>
+        <div class="canvas-wrap" id="canvasWrap">
+          <div class="canvas-empty" id="canvasEmpty">Your photo will appear here.<br>Upload one to begin.</div>
+          <canvas id="photoCanvas" style="display:none"></canvas>
+        </div>
+        <div class="range-row">
+          <span class="mini" style="margin:0">Brush spread</span>
+          <input type="range" id="tolerance" min="10" max="120" value="48">
+          <span class="mini" id="tolVal" style="margin:0">48</span>
+        </div>
+        <p class="note">Click a wall to flood-fill similar pixels with the selected colour. "Brush spread" controls how far the fill reaches into similar tones.</p>
+      </div>
+
+      <div>
+        <div class="card">
+          <h3>🎨 Your palette</h3>
+          <p class="hint">Pick a colour, then click the wall.</p>
+          <div class="swatches" id="swatches"></div>
+          <label style="margin-top:18px">Custom colour</label>
+          <div class="inline">
+            <input type="color" id="customColor" value="#c9a35b" style="height:46px;padding:3px;width:70px">
+            <input type="text" id="customHex" value="#c9a35b" maxlength="7">
+            <button class="btn sm" onclick="addCustomSwatch()">Add</button>
+          </div>
+        </div>
+
+        <div class="ai-box">
+          <h4>✨ AI colour advisor</h4>
+          <p class="hint" style="margin-bottom:0">Reads your uploaded photo and suggests a harmonious palette with reasoning.</p>
+          <div class="btnrow" style="margin-top:12px"><button class="btn sm" onclick="suggestColors()">Suggest colours from photo</button></div>
+          <div class="loader" id="aiLoader"><div class="spin"></div> Reading the photo…</div>
+          <div id="aiResult"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  BigBro Building Solutions — estimates are guidance, not a quote. Always confirm coverage on the product tin and buy a little extra for touch-ups.
+</footer>
+
+<script>
+/* ============================================================
+   RATES & STATE
+   ============================================================ */
+const RATE_DEFAULTS = {
+  putty_cov_m:1.2, putty_cov_ft:13, putty_price:45,
+  primer_cov_m:10, primer_cov_ft:108, primer_price:180,
+  paint_cov_m:11, paint_cov_ft:120, paint_price:320,
+  ext_factor:0.85, cur:'₹', waste:8, round:0.5
+};
+let rates = {...RATE_DEFAULTS};
+let unit = 'ft';                       // default feet
+let roomCount = {interior:0, exterior:0};
+let wallCount = {};                    // per-room wall counter
+let lastCalc = {interior:null, exterior:null};  // snapshot for PDF
+
+function v(id){return document.getElementById(id).value;}
+function getRates(){
+  return {
+    putty_cov_m:+v('r_putty_cov_m'), putty_cov_ft:+v('r_putty_cov_ft'), putty_price:+v('r_putty_price'),
+    primer_cov_m:+v('r_primer_cov_m'), primer_cov_ft:+v('r_primer_cov_ft'), primer_price:+v('r_primer_price'),
+    paint_cov_m:+v('r_paint_cov_m'), paint_cov_ft:+v('r_paint_cov_ft'), paint_price:+v('r_paint_price'),
+    ext_factor:+v('r_ext_factor'), cur:v('r_cur')||'₹', waste:+v('r_waste'), round:+v('r_round')
+  };
+}
+function saveRates(){
+  rates=getRates();
+  document.querySelectorAll('.curPill').forEach(e=>e.textContent=rates.cur);
+  const s=document.getElementById('ratesSaved'); s.style.display='inline-block';
+  setTimeout(()=>s.style.display='none',1800);
+}
+function uLin(){return unit==='m'?'m':'ft';}
+function uArea(){return unit==='m'?'m²':'ft²';}
+
+/* ============================================================
+   TABS
+   ============================================================ */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.onclick=()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById(t.dataset.tab).classList.add('active');
+  };
+});
+
+/* ============================================================
+   UNIT TOGGLE — updates labels live
+   ============================================================ */
+function setUnit(u){
+  unit=u;
+  document.querySelectorAll('#unitSeg button,#unitSegMirror button').forEach(b=>b.classList.toggle('on', b.dataset.u===u));
+  document.querySelectorAll('.uLin').forEach(e=>e.textContent=uLin());
+  document.querySelectorAll('.wall').forEach(updateBadge);
+  document.querySelectorAll('.room').forEach(updateRoomTotal);
+}
+document.querySelectorAll('#unitSeg button,#unitSegMirror button').forEach(b=>b.onclick=()=>setUnit(b.dataset.u));
+
+/* ============================================================
+   ROOM + WALL BUILDER
+   ============================================================ */
+function addRoom(scope){
+  const rid = `${scope}_r${roomCount[scope]++}`;
+  wallCount[rid]=0;
+  const host=document.getElementById(scope==='interior'?'roomsInt':'roomsExt');
+  const isExt = scope==='exterior';
+  const div=document.createElement('div');
+  div.className='room'; div.id='R_'+rid; div.dataset.scope=scope;
+  div.innerHTML=`
+    <div class="room-head">
+      <button class="room-toggle" type="button" onclick="toggleRoom('${rid}')" aria-label="Collapse room">▾</button>
+      <input class="roomname" data-roomname value="${isExt?'Elevation '+roomCount[scope]:'Room '+roomCount[scope]}">
+      <span class="room-total" data-roomtotal>Total net <b>0 ${uArea()}</b></span>
+      <button class="room-del" onclick="document.getElementById('R_${rid}').remove()">✕ remove ${isExt?'elevation':'room'}</button>
+    </div>
+    <div class="room-body">
+      <div class="room-sub">Add each side as a wall, plus the ceiling. A typical hall = 4 walls + 1 ceiling.</div>
+      <div class="wall-add">
+        <button class="btn tiny" type="button" onclick="addWall('${rid}','wall')">+ Wall</button>
+        <button class="btn tiny sage" type="button" onclick="addWall('${rid}','ceiling')">+ Ceiling / top</button>
+        <button class="btn tiny ghost" type="button" onclick="addWall('${rid}','custom')">+ Other surface</button>
+        <button class="btn tiny ghost" type="button" onclick="addFourWalls('${rid}')">+ 4 walls at once</button>
+      </div>
+      <div data-walls></div>
+    </div>
+  `;
+  host.appendChild(div);
+  // start with one wall for convenience
+  addWall(rid,'wall');
+  return rid;
+}
+
+function addFourWalls(rid){ for(let i=0;i<4;i++) addWall(rid,'wall'); }
+
+function toggleRoom(rid){
+  const room=document.getElementById('R_'+rid);
+  if(room) room.classList.toggle('collapsed');
+}
+
+/* sum net area across a room's walls and show in the header badge */
+function updateRoomTotal(room){
+  if(!room) return;
+  let total=0;
+  room.querySelectorAll('.wall').forEach(w=>{ total+=readWall(w).net; });
+  const b=room.querySelector('[data-roomtotal]');
+  if(b) b.innerHTML=`Total net <b>${total.toFixed(1)} ${uArea()}</b>`;
+}
+
+function addWall(rid,type){
+  const room=document.getElementById('R_'+rid);
+  if(!room) return;
+  const host=room.querySelector('[data-walls]');
+  const n = ++wallCount[rid];
+  const wid = rid+'_w'+n;
+  let title, cls;
+  if(type==='ceiling'){title='Ceiling / Top'; cls='ceiling';}
+  else if(type==='custom'){title='Surface'; cls='custom';}
+  else {title='Wall'; cls='';}
+  const div=document.createElement('div');
+  div.className='wall '+cls; div.id='W_'+wid; div.dataset.type=type;
+  div.innerHTML=`
+    <h4>${type==='ceiling'?'🔝':type==='custom'?'▫️':'🧱'} <span data-label contenteditable="true" style="border-bottom:1px dashed var(--line);outline:none;min-width:60px">${title}</span>
+      <span class="area-badge" data-badge>0 ${uArea()}</span>
+      <button class="wall-del" type="button" title="Remove this surface" onclick="const r=this.closest('.room');this.closest('.wall').remove();updateRoomTotal(r)">✕</button></h4>
+    <div class="grid g2">
+      <div><label>Width (<span class="uLin">${uLin()}</span>)</label><input type="number" data-f="w" min="0" step="0.1" placeholder="0" oninput="updateBadge(this.closest('.wall'))"></div>
+      <div><label>Height (<span class="uLin">${uLin()}</span>)</label><input type="number" data-f="h" min="0" step="0.1" placeholder="0" oninput="updateBadge(this.closest('.wall'))"></div>
+    </div>
+    <div class="grid g3" style="margin-top:12px">
+      <div><label>Putty layers</label>
+        <select data-f="putty"><option value="0">None</option><option value="1">1 layer</option><option value="2">2 layers</option><option value="3">3 layers</option></select></div>
+      <div><label>Primer coats</label>
+        <select data-f="primer"><option value="0">None</option><option value="1">1 coat</option><option value="2" selected>2 coats</option><option value="3">3 coats</option></select></div>
+      <div><label>Paint coats</label>
+        <select data-f="paint"><option value="0">None (putty only)</option><option value="1">1 coat</option><option value="2" selected>2 coats</option><option value="3">3 coats</option></select></div>
+    </div>
+    <div class="openings">
+      <div class="mini">Deduct openings &amp; areas to skip on this ${type==='ceiling'?'ceiling':'wall'} (doors, windows, vents)</div>
+      <div data-list></div>
+      <button class="btn ghost sm" type="button" onclick="addOpening('${wid}')">+ Deduct an area</button>
+    </div>`;
+  host.appendChild(div);
+  updateRoomTotal(room);
+}
+
+function addOpening(wid){
+  const wrap=document.getElementById('W_'+wid).querySelector('[data-list]');
+  const row=document.createElement('div');
+  row.className='opening-row';
+  row.innerHTML=`
+    <div><div class="mini">What</div><input type="text" data-o="name" placeholder="Window"></div>
+    <div><div class="mini">Width (<span class="uLin">${uLin()}</span>)</div><input type="number" data-o="w" step="0.1" min="0" oninput="updateBadge(this.closest('.wall'))"></div>
+    <div><div class="mini">Height (<span class="uLin">${uLin()}</span>)</div><input type="number" data-o="h" step="0.1" min="0" oninput="updateBadge(this.closest('.wall'))"></div>
+    <div><div class="mini">Qty</div><input type="number" data-o="q" value="1" min="1" oninput="updateBadge(this.closest('.wall'))"></div>
+    <button class="x" type="button" onclick="const w=this.closest('.wall');this.parentElement.remove();updateBadge(w)">✕</button>`;
+  wrap.appendChild(row);
+}
+
+/* live net-area badge per wall */
+function readWall(div){
+  const f=s=>div.querySelector(`[data-f="${s}"]`);
+  const label=div.querySelector('[data-label]')?.textContent.trim()||'Surface';
+  const gross=(+f('w').value||0)*(+f('h').value||0);
+  let deduct=0;
+  div.querySelectorAll('.opening-row').forEach(r=>{
+    const o=s=>r.querySelector(`[data-o="${s}"]`).value;
+    deduct+=(+o('w')||0)*(+o('h')||0)*(+o('q')||1);
+  });
+  const net=Math.max(0,gross-deduct);
+  return {label,gross,deduct,net,putty:+f('putty').value,primer:+f('primer').value,paint:+f('paint').value};
+}
+function updateBadge(div){
+  if(!div) return;
+  const {net}=readWall(div);
+  const b=div.querySelector('[data-badge]');
+  if(b) b.textContent=`${net.toFixed(1)} ${uArea()} net`;
+  updateRoomTotal(div.closest('.room'));
+}
+
+/* ============================================================
+   CALCULATION
+   ============================================================ */
+function roundUp(x,step){return (!step||step<=0)?x:Math.ceil(x/step)*step;}
+
+function calc(scope){
+  const R=getRates(); rates=R;
+  document.querySelectorAll('.curPill').forEach(e=>e.textContent=R.cur);
+  const host=document.getElementById(scope==='interior'?'roomsInt':'roomsExt');
+  const rooms=[...host.querySelectorAll('.room')];
+  if(!rooms.length){document.getElementById(scope+'Result').innerHTML=`<p class="empty-hint">Add a room and at least one wall, then calculate.</p>`;return;}
+
+  const isExt=scope==='exterior';
+  const cov={
+    putty: unit==='m'?R.putty_cov_m:R.putty_cov_ft,
+    primer:(unit==='m'?R.primer_cov_m:R.primer_cov_ft)*(isExt?R.ext_factor:1),
+    paint: (unit==='m'?R.paint_cov_m:R.paint_cov_ft)*(isExt?R.ext_factor:1)
+  };
+
+  const totals={puttyArea:0,primerArea:0,paintArea:0,gross:0,net:0,deduct:0};
+  const roomRows=[];
+
+  const wf=1+R.waste/100;
+
+  rooms.forEach(room=>{
+    const rname=room.querySelector('[data-roomname]').value||'Room';
+    const walls=[...room.querySelectorAll('.wall')];
+    let rg=0,rn=0,rd=0,rPut=0,rPri=0,rPai=0;
+    const wallRows=[];
+    walls.forEach(w=>{
+      const s=readWall(w);
+      rg+=s.gross; rn+=s.net; rd+=s.deduct;
+      // coverage-area contribution of this wall
+      const wpArea=s.net*s.putty, wprArea=s.net*s.primer, wpaArea=s.net*s.paint;
+      rPut+=wpArea; rPri+=wprArea; rPai+=wpaArea;
+      // actual consumption for this wall (with wastage), not yet tin-rounded
+      s.puttyKg = wpArea/cov.putty*wf;
+      s.primerL = wprArea/cov.primer*wf;
+      s.paintL  = wpaArea/cov.paint*wf;
+      wallRows.push(s);
+    });
+    totals.gross+=rg; totals.net+=rn; totals.deduct+=rd;
+    totals.puttyArea+=rPut; totals.primerArea+=rPri; totals.paintArea+=rPai;
+    // room consumption totals (with wastage)
+    const roomPuttyKg=rPut/cov.putty*wf, roomPrimerL=rPri/cov.primer*wf, roomPaintL=rPai/cov.paint*wf;
+    roomRows.push({rname,rg,rn,rd,wallRows,roomPuttyKg,roomPrimerL,roomPaintL});
+  });
+
+  let puttyKg=totals.puttyArea/cov.putty*wf;
+  let primerL=totals.primerArea/cov.primer*wf;
+  let paintL =totals.paintArea/cov.paint*wf;
+  const puttyR=roundUp(puttyKg,0.5);
+  const primerR=roundUp(primerL,R.round);
+  const paintR=roundUp(paintL,R.round);
+
+  const cPutty=puttyR*R.putty_price, cPrimer=primerR*R.primer_price, cPaint=paintR*R.paint_price;
+  const grand=cPutty+cPrimer+cPaint;
+  const uA=uArea();
+  const money=x=>R.cur+Math.round(x).toLocaleString();
+
+  // snapshot for PDF export
+  const cliName=(document.getElementById('cli_name_'+scope)?.value||'').trim();
+  const cliPhone=(document.getElementById('cli_phone_'+scope)?.value||'').trim();
+  lastCalc[scope]={
+    isExt, uA, roomRows, totals, wf, cov, R,
+    puttyKg, primerL, paintL, puttyR, primerR, paintR,
+    cPutty, cPrimer, cPaint, grand,
+    cliName, cliPhone,
+    when:new Date().toLocaleString()
+  };
+
+  const roomTables=roomRows.map(rr=>`
+    <tr class="room-row">
+      <td>${escapeHtml(rr.rname)}</td>
+      <td data-label="Net area">${rr.rn.toFixed(1)} ${uA}</td>
+      <td data-label="Putty">${rr.roomPuttyKg.toFixed(2)} kg</td>
+      <td data-label="Primer">${rr.roomPrimerL.toFixed(2)} L</td>
+      <td data-label="Paint">${rr.roomPaintL.toFixed(2)} L</td>
+      <td class="coats" data-label="Coats">—</td>
+    </tr>
+    ${rr.wallRows.map(w=>`<tr>
+      <td class="wcell">${escapeHtml(w.label)}</td>
+      <td data-label="Net area">${w.net.toFixed(1)}</td>
+      <td data-label="Putty">${w.puttyKg>0?w.puttyKg.toFixed(2)+' kg':'—'}</td>
+      <td data-label="Primer">${w.primerL>0?w.primerL.toFixed(2)+' L':'—'}</td>
+      <td data-label="Paint">${w.paintL>0?w.paintL.toFixed(2)+' L':'—'}</td>
+      <td class="coats" data-label="Coats">${w.putty}L / ${w.primer}c / ${w.paint}c</td>
+    </tr>`).join('')}
+  `).join('');
+
+  document.getElementById(scope+'Result').innerHTML=`
+    <div class="result" id="resultCard_${scope}">
+      <div class="result-head">
+        <h3>${isExt?'Exterior':'Interior'} estimate — ${roomRows.length} ${isExt?'elevation(s)':'room(s)'}</h3>
+        <button class="btn-pdf" onclick="downloadPDF('${scope}')">⬇ Download PDF</button>
+      </div>
+      <div class="stat-grid">
+        <div class="stat"><div class="k">Net paintable area</div><div class="v">${totals.net.toFixed(1)} <small>${uA}</small></div></div>
+        <div class="stat"><div class="k">Putty needed</div><div class="v">${puttyR.toFixed(1)} <small>kg</small></div></div>
+        <div class="stat"><div class="k">Primer needed</div><div class="v">${primerR.toFixed(1)} <small>L</small></div></div>
+        <div class="stat"><div class="k">Paint needed</div><div class="v">${paintR.toFixed(1)} <small>L</small></div></div>
+        <div class="stat"><div class="k">Total cost</div><div class="v">${money(grand)}</div></div>
+      </div>
+
+      <div class="breakdown">
+        <h4 class="bd-title">Materials to buy</h4>
+        <table>
+          <colgroup><col class="c-item"><col><col><col><col></colgroup>
+          <thead><tr><th>Item</th><th>Coverage area</th><th>Raw qty</th><th>+ waste &amp; tins</th><th>Cost</th></tr></thead>
+          <tbody>
+            <tr><td>🪣 Putty (all layers)</td><td data-label="Coverage area">${totals.puttyArea.toFixed(1)} ${uA}</td><td data-label="Raw qty">${(puttyKg/wf).toFixed(2)} kg</td><td data-label="+ waste & tins">${puttyR.toFixed(1)} kg</td><td data-label="Cost">${money(cPutty)}</td></tr>
+            <tr><td>🩹 Primer (all coats)</td><td data-label="Coverage area">${totals.primerArea.toFixed(1)} ${uA}</td><td data-label="Raw qty">${(primerL/wf).toFixed(2)} L</td><td data-label="+ waste & tins">${primerR.toFixed(1)} L</td><td data-label="Cost">${money(cPrimer)}</td></tr>
+            <tr><td>🎨 Paint (all coats)</td><td data-label="Coverage area">${totals.paintArea.toFixed(1)} ${uA}</td><td data-label="Raw qty">${(paintL/wf).toFixed(2)} L</td><td data-label="+ waste & tins">${paintR.toFixed(1)} L</td><td data-label="Cost">${money(cPaint)}</td></tr>
+            <tr class="total-row"><td>Total</td><td></td><td></td><td></td><td data-label="Cost">${money(grand)}</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="breakdown consumption">
+        <h4 class="bd-title">Consumption per room &amp; wall</h4>
+        <table>
+          <colgroup><col class="c-item"><col><col><col><col><col class="c-coats"></colgroup>
+          <thead><tr><th>Room / Wall</th><th>Net area</th><th>Putty</th><th>Primer</th><th>Paint</th><th>Coats (Pu/Pr/Pa)</th></tr></thead>
+          <tbody>${roomTables}</tbody>
+        </table>
+        <p class="note" style="color:#cdbfa9;margin-top:6px">Per-wall and per-room figures include ${R.waste}% wastage but are <em>not</em> tin-rounded, so they sum exactly. The summary cards above round each material up to a buyable tin size.</p>
+      </div>
+      <p class="note" style="color:#cdbfa9">Coverage used: putty ${cov.putty.toFixed(1)}, primer ${cov.primer.toFixed(1)}, paint ${cov.paint.toFixed(1)} ${uA}/unit${isExt?' (exterior factor applied)':''}.</p>
+    </div>`;
+  document.getElementById(scope+'Result').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function escapeHtml(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+/* ============================================================
+   PDF EXPORT (print-to-PDF)
+   ============================================================ */
+function downloadPDF(scope){
+  const d=lastCalc[scope];
+  if(!d){alert('Please calculate first.');return;}
+  const money=x=>d.R.cur+Math.round(x).toLocaleString();
+  const title=(d.isExt?'Exterior':'Interior')+' Paint Estimate';
+
+  const roomBlocks=d.roomRows.map(rr=>`
+    <tr class="rr">
+      <td>${escapeHtml(rr.rname)}</td>
+      <td>${rr.rn.toFixed(1)} ${d.uA}</td>
+      <td>${rr.roomPuttyKg.toFixed(2)} kg</td>
+      <td>${rr.roomPrimerL.toFixed(2)} L</td>
+      <td>${rr.roomPaintL.toFixed(2)} L</td>
+      <td>—</td>
+    </tr>
+    ${rr.wallRows.map(w=>`<tr>
+      <td class="wc">↳ ${escapeHtml(w.label)}</td>
+      <td>${w.net.toFixed(1)}</td>
+      <td>${w.puttyKg>0?w.puttyKg.toFixed(2)+' kg':'—'}</td>
+      <td>${w.primerL>0?w.primerL.toFixed(2)+' L':'—'}</td>
+      <td>${w.paintL>0?w.paintL.toFixed(2)+' L':'—'}</td>
+      <td>${w.putty}L / ${w.primer}c / ${w.paint}c</td>
+    </tr>`).join('')}
+  `).join('');
+
+  const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${title}</title>
+  <style>
+    @page{margin:16mm}
+    *{box-sizing:border-box}
+    body{font-family:Georgia,'Times New Roman',serif;color:#1a1410;margin:0;padding:24px;background:#fff}
+    .hd{display:flex;align-items:center;gap:12px;border-bottom:3px solid #b8492f;padding-bottom:14px;margin-bottom:18px}
+    .blob{width:34px;height:34px;border-radius:50% 50% 50% 12px;background:linear-gradient(135deg,#b8492f,#c08a2d)}
+    .hd h1{font-size:1.5rem;margin:0}
+    .hd .sub{font-family:Arial,sans-serif;font-size:.78rem;color:#6b5d49;margin-top:2px}
+    h2{font-size:1.05rem;color:#8f3722;border-bottom:1px solid #c9bca3;padding-bottom:6px;margin:22px 0 10px}
+    .cards{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:8px}
+    .c{flex:1 1 140px;border:1px solid #c9bca3;border-radius:8px;padding:10px 12px}
+    .c .k{font-family:Arial,sans-serif;font-size:.64rem;text-transform:uppercase;letter-spacing:.05em;color:#8a7d68}
+    .c .v{font-size:1.3rem;margin-top:3px}
+    table{width:100%;border-collapse:collapse;font-family:Arial,sans-serif;font-size:.82rem;margin-top:4px}
+    th,td{padding:7px 8px;border-bottom:1px solid #e4d9c3;text-align:right}
+    th:first-child,td:first-child{text-align:left}
+    th{font-size:.64rem;text-transform:uppercase;letter-spacing:.04em;color:#8a7d68;background:#f3ede1}
+    tr.rr td{background:linear-gradient(90deg,rgba(192,138,45,.18),rgba(192,138,45,.05));font-weight:700;color:#8f3722;border-top:2px solid #c08a2d}
+    tr.tot td{font-weight:700;color:#8f3722;border-top:2px solid #b8492f}
+    td.wc{color:#6b5d49}
+    .note{font-family:Arial,sans-serif;font-size:.72rem;color:#8a7d68;margin-top:10px}
+    .ft{margin-top:22px;border-top:1px solid #c9bca3;padding-top:10px;font-family:Arial,sans-serif;font-size:.7rem;color:#8a7d68}
+    .client{background:#f7f1e6;border:1px solid #d9c7a3;border-left:4px solid #b8492f;border-radius:8px;padding:12px 14px;margin-bottom:8px;font-family:Arial,sans-serif}
+    .client .lab{font-size:.62rem;text-transform:uppercase;letter-spacing:.05em;color:#8a7d68;font-weight:700}
+    .client .nm{font-family:Georgia,serif;font-size:1.15rem;color:#1a1410;margin-top:1px}
+    .client .ph{font-size:.86rem;color:#43392c;margin-top:2px}
+    @media print{body{padding:0}.noprint{display:none}}
+    .pbtn{font-family:Arial,sans-serif;background:#b8492f;color:#fff;border:none;padding:11px 18px;border-radius:8px;font-weight:700;cursor:pointer;font-size:.9rem}
+  </style></head><body>
+    <div class="noprint" style="text-align:right;margin-bottom:14px">
+      <button class="pbtn" onclick="window.print()">⬇ Save as PDF / Print</button>
+    </div>
+    <div class="hd"><div class="blob"></div>
+      <div><h1>${title}</h1><div class="sub">BigBro Building Solutions · generated ${d.when}</div></div>
+    </div>
+
+    ${(d.cliName||d.cliPhone)?`<div class="client">
+      <div class="lab">Prepared for</div>
+      ${d.cliName?`<div class="nm">${escapeHtml(d.cliName)}</div>`:''}
+      ${d.cliPhone?`<div class="ph">📞 ${escapeHtml(d.cliPhone)}</div>`:''}
+    </div>`:''}
+
+    <h2>Summary</h2>
+    <div class="cards">
+      <div class="c"><div class="k">Net paintable area</div><div class="v">${d.totals.net.toFixed(1)} ${d.uA}</div></div>
+      <div class="c"><div class="k">Putty needed</div><div class="v">${d.puttyR.toFixed(1)} kg</div></div>
+      <div class="c"><div class="k">Primer needed</div><div class="v">${d.primerR.toFixed(1)} L</div></div>
+      <div class="c"><div class="k">Paint needed</div><div class="v">${d.paintR.toFixed(1)} L</div></div>
+      <div class="c"><div class="k">Total cost</div><div class="v">${money(d.grand)}</div></div>
+    </div>
+
+    <h2>Materials to buy</h2>
+    <table>
+      <thead><tr><th>Item</th><th>Coverage area</th><th>Raw qty</th><th>+ waste &amp; tins</th><th>Cost</th></tr></thead>
+      <tbody>
+        <tr><td>Putty (all layers)</td><td>${d.totals.puttyArea.toFixed(1)} ${d.uA}</td><td>${(d.puttyKg/d.wf).toFixed(2)} kg</td><td>${d.puttyR.toFixed(1)} kg</td><td>${money(d.cPutty)}</td></tr>
+        <tr><td>Primer (all coats)</td><td>${d.totals.primerArea.toFixed(1)} ${d.uA}</td><td>${(d.primerL/d.wf).toFixed(2)} L</td><td>${d.primerR.toFixed(1)} L</td><td>${money(d.cPrimer)}</td></tr>
+        <tr><td>Paint (all coats)</td><td>${d.totals.paintArea.toFixed(1)} ${d.uA}</td><td>${(d.paintL/d.wf).toFixed(2)} L</td><td>${d.paintR.toFixed(1)} L</td><td>${money(d.cPaint)}</td></tr>
+        <tr class="tot"><td>Total</td><td></td><td></td><td></td><td>${money(d.grand)}</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Consumption per room &amp; wall</h2>
+    <table>
+      <thead><tr><th>Room / Wall</th><th>Net area</th><th>Putty</th><th>Primer</th><th>Paint</th><th>Coats (Pu/Pr/Pa)</th></tr></thead>
+      <tbody>${roomBlocks}</tbody>
+    </table>
+    <p class="note">Per-wall and per-room figures include ${d.R.waste}% wastage but are not tin-rounded, so they sum exactly. Summary quantities are rounded up to buyable tin sizes. Coverage used: putty ${d.cov.putty.toFixed(1)}, primer ${d.cov.primer.toFixed(1)}, paint ${d.cov.paint.toFixed(1)} ${d.uA}/unit${d.isExt?' (exterior factor applied)':''}.</p>
+
+    <div class="ft">BigBro Building Solutions — estimates are guidance, not a quote. Confirm coverage on the product tin and buy a little extra for touch-ups.</div>
+    <script>setTimeout(function(){window.focus();window.print();},400);<\/script>
+  </body></html>`;
+
+  const w=window.open('','_blank');
+  if(!w){alert('Please allow pop-ups to download the PDF.');return;}
+  w.document.open(); w.document.write(html); w.document.close();
+}
+
+/* ============================================================
+   COLOUR STUDIO
+   ============================================================ */
+const baseSwatches=[
+  ['#e8e2d4','Warm White'],['#d9c7a3','Sand'],['#c9a35b','Ochre'],
+  ['#7d8a6f','Sage'],['#577b8a','Slate Blue'],['#a05c4a','Terracotta'],
+  ['#3d4a52','Charcoal'],['#b8473a','Brick Red'],['#e9d8a6','Cream'],['#6b4f3a','Walnut']
+];
+let activeColor=baseSwatches[2][0];
+let canvas,ctx,baseImage=null,history=[];
+
+function renderSwatches(){
+  const host=document.getElementById('swatches'); host.innerHTML='';
+  baseSwatches.forEach(([hex,name])=>{
+    const d=document.createElement('div');
+    d.className='swatch'+(hex===activeColor?' on':'');
+    d.style.background=hex; d.innerHTML=`<span>${name}</span>`;
+    d.onclick=()=>{activeColor=hex;document.getElementById('customColor').value=hex;document.getElementById('customHex').value=hex;renderSwatches();};
+    host.appendChild(d);
+  });
+}
+renderSwatches();
+
+function addCustomSwatch(){
+  let hex=document.getElementById('customHex').value.trim();
+  if(!/^#?[0-9a-fA-F]{6}$/.test(hex)) hex=document.getElementById('customColor').value;
+  if(hex[0]!=='#') hex='#'+hex;
+  if(!baseSwatches.find(s=>s[0].toLowerCase()===hex.toLowerCase())) baseSwatches.unshift([hex,'Custom']);
+  activeColor=hex; renderSwatches();
+}
+document.getElementById('customColor').oninput=e=>{document.getElementById('customHex').value=e.target.value;activeColor=e.target.value;};
+document.getElementById('customHex').oninput=e=>{const x=e.target.value;if(/^#[0-9a-fA-F]{6}$/.test(x)){document.getElementById('customColor').value=x;activeColor=x;}};
+document.getElementById('tolerance').oninput=e=>document.getElementById('tolVal').textContent=e.target.value;
+
+document.getElementById('photoInput').onchange=e=>{
+  const file=e.target.files[0]; if(!file) return;
+  const img=new Image();
+  img.onload=()=>{
+    canvas=document.getElementById('photoCanvas');
+    const maxW=720, scale=Math.min(1,maxW/img.width);
+    canvas.width=img.width*scale; canvas.height=img.height*scale;
+    ctx=canvas.getContext('2d',{willReadFrequently:true});
+    ctx.drawImage(img,0,0,canvas.width,canvas.height);
+    baseImage=ctx.getImageData(0,0,canvas.width,canvas.height);
+    history=[]; canvas.style.display='block';
+    document.getElementById('canvasEmpty').style.display='none';
+  };
+  img.src=URL.createObjectURL(file);
+};
+function resetPhoto(){if(baseImage){ctx.putImageData(baseImage,0,0);history=[];}}
+function undoPaint(){if(history.length)ctx.putImageData(history.pop(),0,0);}
+
+document.addEventListener('click',e=>{
+  if(e.target.id!=='photoCanvas')return;
+  const rect=canvas.getBoundingClientRect();
+  const x=Math.floor((e.clientX-rect.left)*(canvas.width/rect.width));
+  const y=Math.floor((e.clientY-rect.top)*(canvas.height/rect.height));
+  floodRecolor(x,y);
+});
+function hexToRgb(h){h=h.replace('#','');return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];}
+
+function floodRecolor(sx,sy){
+  if(!ctx)return;
+  history.push(ctx.getImageData(0,0,canvas.width,canvas.height));
+  if(history.length>15)history.shift();
+  const W=canvas.width,H=canvas.height;
+  const img=ctx.getImageData(0,0,W,H),d=img.data;
+  const tol=+document.getElementById('tolerance').value;
+  const idx=(sx+sy*W)*4, sr=d[idx],sg=d[idx+1],sb=d[idx+2];
+  const [tr,tg,tb]=hexToRgb(activeColor);
+  const visited=new Uint8Array(W*H), stack=[[sx,sy]];
+  while(stack.length){
+    const [px,py]=stack.pop();
+    if(px<0||py<0||px>=W||py>=H)continue;
+    const p=px+py*W; if(visited[p])continue;
+    const i=p*4;
+    const dist=Math.abs(d[i]-sr)+Math.abs(d[i+1]-sg)+Math.abs(d[i+2]-sb);
+    if(dist>tol*3)continue;
+    visited[p]=1;
+    const lum=(d[i]*0.299+d[i+1]*0.587+d[i+2]*0.114)/255;
+    const shade=0.55+lum*0.75;
+    d[i]=Math.min(255,tr*shade); d[i+1]=Math.min(255,tg*shade); d[i+2]=Math.min(255,tb*shade);
+    stack.push([px+1,py],[px-1,py],[px,py+1],[px,py-1]);
+  }
+  ctx.putImageData(img,0,0);
+}
+function downloadResult(){
+  if(!canvas){alert('Upload a photo first.');return;}
+  const a=document.createElement('a'); a.download='bigbro-preview.png'; a.href=canvas.toDataURL('image/png'); a.click();
+}
+
+async function suggestColors(){
+  if(!baseImage){alert('Upload a photo first.');return;}
+  const loader=document.getElementById('aiLoader'), out=document.getElementById('aiResult');
+  loader.classList.add('show'); out.innerHTML='';
+  try{
+    const b64=canvas.toDataURL('image/jpeg',0.8).split(',')[1];
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:[
+        {type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},
+        {type:'text',text:'You are a paint colour consultant. Look at this building photo and propose ONE harmonious palette: a main wall colour, a trim colour, and an accent. Respond ONLY with JSON, no markdown: {"summary":"one sentence on the style you see","palette":[{"name":"...","hex":"#......","role":"Main wall"},{"name":"...","hex":"#......","role":"Trim"},{"name":"...","hex":"#......","role":"Accent"}],"why":"one short sentence on why it suits the building"}'}
+      ]}]})
+    });
+    const data=await res.json();
+    const txt=data.content.filter(b=>b.type==='text').map(b=>b.text).join('').replace(/```json|```/g,'').trim();
+    const j=JSON.parse(txt);
+    out.innerHTML=`<p class="note" style="margin-top:12px"><strong>${escapeHtml(j.summary)}</strong></p>
+      <div class="ai-pal">${j.palette.map(p=>`<div class="chip" onclick="pickAi('${p.hex}','${escapeHtml(p.name)}')"><i style="background:${p.hex}"></i>${escapeHtml(p.role)}<br><b>${escapeHtml(p.name)}</b></div>`).join('')}</div>
+      <p class="note">${escapeHtml(j.why)} — click any swatch to load it, then paint the wall.</p>`;
+  }catch(err){
+    out.innerHTML=`<p class="note" style="color:var(--warn)">Couldn't read the photo just now (${escapeHtml(String(err.message||err))}). You can still pick colours manually and paint the walls.</p>`;
+  }finally{loader.classList.remove('show');}
+}
+function pickAi(hex,name){
+  if(!baseSwatches.find(s=>s[0].toLowerCase()===hex.toLowerCase()))baseSwatches.unshift([hex,name]);
+  activeColor=hex; document.getElementById('customColor').value=hex; document.getElementById('customHex').value=hex; renderSwatches();
+}
+
+/* ============================================================
+   INIT — one room each, prefilled with 4 walls + ceiling on interior
+   ============================================================ */
+(function init(){
+  const intRoom=addRoom('interior');
+  // interior demo room already has 1 wall; add 3 more + ceiling => 4 walls + ceiling
+  addWall(intRoom,'wall'); addWall(intRoom,'wall'); addWall(intRoom,'wall');
+  addWall(intRoom,'ceiling');
+  addRoom('exterior');
+})();
+</script>
+</body>
+</html>
